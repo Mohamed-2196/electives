@@ -1,0 +1,40 @@
+{% extends 'courses/base.html' %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <h1 class="home-title">Welcome to Year 3 Elective Selection</h1>
+    <p class="home-subtitle">Choose your electives for the upcoming academic year</p>
+
+    <div class="action-cards">
+        <div class="action-card">
+            <h2>Browse Courses</h2>
+            <p>Explore available courses for each elective type. View course descriptions, prerequisites, and assessment methods.</p>
+            {% if elective_types %}
+            <div class="elective-type-cards">
+                {% for elective_type in elective_types %}
+                <div class="elective-type-card">
+                    <h3>{{ elective_type.name }}</h3>
+                    <p>{{ elective_type.description }}</p>
+                    <a href="{% url 'browse_courses' elective_type.id %}" class="subject-button">Browse Courses</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: #ef4444; margin-top: 1rem;">No elective types available. Please contact your administrator.</p>
+            {% endif %}
+        </div>
+
+        <div class="action-card">
+            <h2>Make Your Selection</h2>
+            <p>Enter your student ID to start selecting your preferred electives. You can indicate which courses you are willing to take.</p>
+            <form method="POST" action="{% url 'select_elective_type' %}" class="student-id-form">
+                {% csrf_token %}
+                <input type="text" name="student_id" placeholder="Enter your Student ID" required>
+                <button type="submit" class="subject-button" style="width: 100%;">Start Selection</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
