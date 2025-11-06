@@ -7,24 +7,24 @@
 {% block content %}
 <a href="{% url 'home' %}" class="back-button">← Back to Home</a>
 
-<div style="background: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); text-align: center;">
-    <h2 style="font-family: 'Playfair Display', serif; color: #1a237e; margin-bottom: 1rem;">Welcome, Student {{ student_id }}</h2>
-    <p style="color: #666; font-size: 1.1rem;">Please select which elective type you want to make selections for:</p>
+<div class="info-box">
+    <h2>Welcome, Student {{ student_id }}</h2>
+    <p>Please select which elective type you want to make selections for:</p>
 </div>
 
 {% if elective_types %}
-<div class="elective-type-cards">
+<div class="elective-type-list">
     {% for elective_type in elective_types %}
-    <div class="elective-type-card">
+    <div class="elective-type-item">
         <h3>{{ elective_type.name }}</h3>
         <p>{{ elective_type.description }}</p>
-        <a href="{% url 'select_courses' elective_type.id %}" class="subject-button" style="width: 100%;">Select Courses</a>
+        <a href="{% url 'select_courses' elective_type.id %}" class="btn">Select Courses</a>
     </div>
     {% endfor %}
 </div>
 {% else %}
-<div style="background: white; padding: 3rem; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
-    <p style="color: #ef4444; font-size: 1.2rem;">No elective types available. Please contact your administrator.</p>
+<div class="info-box">
+    <p style="color: #ef4444;">No elective types available. Please contact your administrator.</p>
 </div>
 {% endif %}
 {% endblock %}

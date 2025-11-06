@@ -1,114 +1,96 @@
 {% extends 'courses/base.html' %}
 
-{% block title %}Browse {{ elective_type.name }} - Elective Selection{% endblock %}
+{% block title %}Browse {{ elective_type.name }}{% endblock %}
 
-{% block header %}Browse Courses: {{ elective_type.name }}{% endblock %}
+{% block header %}Browse Courses{% endblock %}
 
 {% block content %}
 <a href="{% url 'home' %}" class="back-button">← Back to Home</a>
 
-<div style="background: white; padding: 2rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
-    <h2 style="font-family: 'Playfair Display', serif; color: #1a237e; margin-bottom: 1rem;">{{ elective_type.name }}</h2>
-    <p style="color: #666; font-size: 1.1rem;">{{ elective_type.description }}</p>
+<div class="info-box">
+    <h2>{{ elective_type.name }}</h2>
+    <p>{{ elective_type.description }}</p>
 </div>
 
 {% if courses %}
-<div class="subject-grid">
+<div class="course-grid">
     {% for course in courses %}
-    <div class="subject-card">
-        <div class="subject-card-content">
-            <div class="subject-icon">📚</div>
-            <h3 class="subject-title">{{ course.code }}: {{ course.name }}</h3>
-            <p class="subject-description">{{ course.description }}</p>
+    <div class="course-card">
+        <div class="course-header">
+            <span class="course-code">{{ course.code }}</span>
+            {% if course.total_points %}
+            <span class="course-points">{{ course.total_points }} pts</span>
+            {% endif %}
+            <h3 class="course-title">{{ course.name }}</h3>
+            <p class="course-description">{{ course.description }}</p>
+        </div>
 
-            <div class="course-info">
-                <div class="course-info-item">
-                    <strong>Credits:</strong> {{ course.credits }}
-                </div>
-                <div class="course-info-item">
-                    <strong>Level:</strong> {{ course.level }}
-                </div>
-                {% if course.prerequisites %}
-                <div class="course-info-item">
-                    <span class="info-label">
-                        <strong>Prerequisites:</strong>
-                        <div class="tooltip">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltiptext">
-                                <strong>Prerequisites</strong><br>
-                                Courses that must be completed before taking this module. You can also take the prerequisite course in the same year as this module if needed.
-                            </span>
-                        </div>
-                    </span>
-                    {{ course.prerequisites }}
-                </div>
-                {% endif %}
-                {% if course.corequisites %}
-                <div class="course-info-item">
-                    <span class="info-label">
-                        <strong>Corequisites:</strong>
-                        <div class="tooltip">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltiptext">
-                                <strong>Corequisites</strong><br>
-                                Courses that must be taken alongside this module in the same year.
-                            </span>
-                        </div>
-                    </span>
-                    {{ course.corequisites }}
-                </div>
-                {% endif %}
-                {% if course.exclusions %}
-                <div class="course-info-item">
-                    <span class="info-label">
-                        <strong>Exclusions:</strong>
-                        <div class="tooltip">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltiptext">
-                                <strong>Exclusions</strong><br>
-                                Courses that cannot be taken together with this module due to significant content overlap. If you've taken an excluded course, you cannot take this one.
-                            </span>
-                        </div>
-                    </span>
-                    {{ course.exclusions }}
-                </div>
-                {% endif %}
-                <div class="course-info-item">
-                    <span class="info-label">
-                        <strong>Mode:</strong>
-                        <div class="tooltip">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltiptext">
-                                <strong>Delivery Mode</strong><br>
-                                • <strong>LT:</strong> Lead Teaching (on-campus)<br>
-                                • <strong>ILR:</strong> Independent Learning Route (distance learning)<br>
-                                • <strong>OT:</strong> Online Teaching (fully online)
-                            </span>
-                        </div>
-                    </span>
-                    {{ course.mode }}
-                </div>
-                <div class="course-info-item">
-                    <strong>Assessment:</strong> {{ course.assessment }}
-                </div>
-                {% if course.study_guide_url %}
-                <div class="course-info-item">
-                    <a href="{{ course.study_guide_url }}" target="_blank" class="subject-link">Study Guide →</a>
-                </div>
-                {% endif %}
-                {% if course.course_description_url %}
-                <div class="course-info-item">
-                    <a href="{{ course.course_description_url }}" target="_blank" class="subject-link">Course Description →</a>
-                </div>
-                {% endif %}
+        <div class="course-details">
+            <div class="detail-item">
+                <span class="detail-label">Credits:</span>
+                <span class="detail-value">{{ course.credits }}</span>
             </div>
+            <div class="detail-item">
+                <span class="detail-label">Level:</span>
+                <span class="detail-value">{{ course.level }}</span>
+            </div>
+            {% if course.prerequisites %}
+            <div class="detail-item">
+                <span class="detail-label">
+                    Prerequisites:
+                    <span class="info-icon" data-tooltip="Prerequisites&#10;You should have taken the following courses, or you can take them&#10;as your second elective (if they're available as electives).&#10;Lower-level prerequisites can also be taken in the same year.">?</span>
+                </span>
+                <span class="detail-value">{{ course.prerequisites }}</span>
+            </div>
+            {% endif %}
+            {% if course.corequisites %}
+            <div class="detail-item">
+                <span class="detail-label">
+                    Corequisites:
+                    <span class="info-icon" data-tooltip="Corequisites&#10;Same-level courses that must be taken together in the same year.&#10;You should take these as your other elective (if available).">?</span>
+                </span>
+                <span class="detail-value">{{ course.corequisites }}</span>
+            </div>
+            {% endif %}
+            {% if course.exclusions %}
+            <div class="detail-item">
+                <span class="detail-label">
+                    Exclusions:
+                    <span class="info-icon" data-tooltip="Exclusions&#10;Courses that cannot be taken with this module due to content overlap.&#10;If you've taken an excluded course, you cannot take this one.">?</span>
+                </span>
+                <span class="detail-value">{{ course.exclusions }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <span class="detail-label">
+                    Mode:
+                    <span class="info-icon" data-tooltip="Delivery Mode&#10;• LT: Lead Teaching (on-campus)&#10;• ILR: Independent Learning Route (distance)&#10;• OT: Online Teaching (fully online)">?</span>
+                </span>
+                <span class="detail-value">{{ course.mode }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Assessment:</span>
+                <span class="detail-value">{{ course.assessment }}</span>
+            </div>
+            {% if course.study_guide_url %}
+            <div class="detail-item">
+                <span class="detail-label"></span>
+                <a href="{{ course.study_guide_url }}" target="_blank" class="links">Study Guide →</a>
+            </div>
+            {% endif %}
+            {% if course.course_description_url %}
+            <div class="detail-item">
+                <span class="detail-label"></span>
+                <a href="{{ course.course_description_url }}" target="_blank" class="links">Course Description →</a>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
-<div style="background: white; padding: 3rem; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
-    <p style="color: #666; font-size: 1.2rem;">No courses available for this elective type.</p>
+<div class="info-box">
+    <p>No courses available for this elective type.</p>
 </div>
 {% endif %}
 {% endblock %}

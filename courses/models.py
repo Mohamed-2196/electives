@@ -30,6 +30,21 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
 
+    def total_points(self):
+        """Calculate total preference points for this course"""
+        from django.db.models import Sum, Case, When, IntegerField
+        return self.selections.aggregate(
+            total=Sum(
+                Case(
+                    When(interest='not_willing', then=0),
+                    When(interest='willing', then=1),
+                    When(interest='prefer', then=2),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        )['total'] or 0
+
     class Meta:
         ordering = ['code']
         verbose_name = "Course"
@@ -38,9 +53,16 @@ class Course(models.Model):
 
 class StudentSelection(models.Model):
     INTEREST_CHOICES = [
-        ('willing', 'Willing to Take'),
         ('not_willing', 'Not Willing to Take'),
+        ('willing', 'Willing to Take'),
+        ('prefer', 'Prefer to Take'),
     ]
+
+    INTEREST_POINTS = {
+        'not_willing': 0,
+        'willing': 1,
+        'prefer': 2,
+    }
 
     student_id = models.CharField(max_length=50)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='selections')
@@ -48,6 +70,10 @@ class StudentSelection(models.Model):
     interest = models.CharField(max_length=20, choices=INTEREST_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def points(self):
+        return self.INTEREST_POINTS.get(self.interest, 0)
 
     def __str__(self):
         return f"{self.student_id} - {self.course.code} ({self.interest})"

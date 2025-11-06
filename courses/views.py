@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Sum, Case, When, IntegerField
 from .models import ElectiveType, Course, StudentSelection
 
 
@@ -12,7 +13,18 @@ def home(request):
 def browse_courses(request, elective_type_id):
     """Browse courses for a specific elective type"""
     elective_type = get_object_or_404(ElectiveType, id=elective_type_id)
-    courses = Course.objects.filter(elective_types=elective_type)
+    courses = Course.objects.filter(elective_types=elective_type).annotate(
+        total_points=Sum(
+            Case(
+                When(selections__interest='not_willing', then=0),
+                When(selections__interest='willing', then=1),
+                When(selections__interest='prefer', then=2),
+                default=0,
+                output_field=IntegerField()
+            )
+        )
+    ).order_by('-total_points', 'code')
+
     return render(request, 'courses/browse.html', {
         'elective_type': elective_type,
         'courses': courses,
@@ -45,7 +57,17 @@ def select_courses(request, elective_type_id):
         return redirect('home')
 
     elective_type = get_object_or_404(ElectiveType, id=elective_type_id)
-    courses = Course.objects.filter(elective_types=elective_type)
+    courses = Course.objects.filter(elective_types=elective_type).annotate(
+        total_points=Sum(
+            Case(
+                When(selections__interest='not_willing', then=0),
+                When(selections__interest='willing', then=1),
+                When(selections__interest='prefer', then=2),
+                default=0,
+                output_field=IntegerField()
+            )
+        )
+    ).order_by('-total_points', 'code')
 
     # Get existing selections for this student
     existing_selections = StudentSelection.objects.filter(
@@ -88,7 +110,7 @@ def submit_selection(request, elective_type_id):
 
     for course in courses:
         interest = request.POST.get(f'course_{course.id}')
-        if interest in ['willing', 'not_willing']:
+        if interest in ['willing', 'not_willing', 'prefer']:
             StudentSelection.objects.create(
                 student_id=student_id,
                 course=course,
